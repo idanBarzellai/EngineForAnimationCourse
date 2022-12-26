@@ -243,9 +243,9 @@ void APIENTRY DebugMessageCallback(GLenum source, GLenum type, unsigned int id, 
 
     std::cerr << std::endl;
 
-#if !defined(NDEBUG) && defined(_MSC_VER)
-    __debugbreak();
-#endif
+//#if !defined(NDEBUG) && defined(_MSC_VER)
+//    __debugbreak();
+//#endif
 }
 
 void Display::SetupDebugCallback()
