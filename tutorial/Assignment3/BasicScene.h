@@ -15,17 +15,28 @@ public:
     void ScrollCallback(cg3d::Viewport* viewport, int x, int y, int xoffset, int yoffset, bool dragging, int buttonState[]) override;
     void CursorPosCallback(cg3d::Viewport* viewport, int x, int y, bool dragging, int* buttonState)  override;
     void KeyCallback(cg3d::Viewport* viewport, int x, int y, int key, int scancode, int action, int mods) override;
-     Eigen::Vector3f GetSpherePos();
+    IGL_INLINE void IKSolver();
+    Eigen::Vector3f CalcTipPOs();
+    IGL_INLINE Eigen::Matrix3f CalcParentsInverseRotation(int index);
+    void fixAxis();
 private:
     std::shared_ptr<Movable> root;
-    std::shared_ptr<cg3d::Model> sphere1 ,cube;
+    std::shared_ptr<cg3d::Model> sphere1, cube;
     std::shared_ptr<cg3d::AutoMorphingModel> autoCube;
-    std::vector<std::shared_ptr<cg3d::Model>> cyls, axis;
+    std::vector<std::shared_ptr<cg3d::Model>>models, cyls, axis;
     int pickedIndex = 0;
     int tipIndex = 0;
     Eigen::VectorXi EMAP;
-    Eigen::MatrixXi F,E,EF,EI;
+    Eigen::MatrixXi F, E, EF, EI;
     Eigen::VectorXi EQ;
-  // If an edge were collapsed, we'd collapse it to these points:
-    Eigen::MatrixXd V, C, N, T, points,edges,colors;
+    Eigen::MatrixXd V, C, N, T, points, edges, colors;
+    bool isActive;
+    void Animate();
+    int cylCount;
+    float dist;
+    float delta;
+    float cyl_length = 1.6f;
+    Eigen::RowVector4f destination;
+    float max_dis;
+    float scaleFactor;
 };
