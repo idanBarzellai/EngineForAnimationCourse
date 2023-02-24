@@ -95,4 +95,5 @@ void Model::SetMeshList(std::vector<std::shared_ptr<Mesh>> _meshList)
         viewerDataListPerMesh.emplace_back(CreateViewerData(mesh));
 }
 
+
 } // namespace cg3d

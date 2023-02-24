@@ -14,6 +14,10 @@ class Model : virtual public Movable
 {
     friend class DrawVisitor;
 
+
+  
+
+
 protected:
     Model(const std::string& file, std::shared_ptr<Material> material);
     Model(std::string name, const std::string& file, std::shared_ptr<Material> material);
@@ -25,6 +29,20 @@ protected:
     Model& operator=(const Model& other) = default;
 
 public:
+    // Added for assignment
+
+    enum type { NONE, BASIC, BOUNCY, BEZIER };
+    type type;
+    Eigen::Vector3d speed;
+    double t;
+    Eigen::Matrix <double, 4, 3> MG;
+    Eigen::RowVector4d T;
+    Eigen::Vector3d final_dir;
+    Eigen::Vector3d last_pos;
+    Eigen::Vector3d curr_pos;
+    Eigen::Matrix <double, 4, 3> bezier_points;
+  // Added for assignment
+
     template<typename... Args>
     static std::shared_ptr<Model> Create(Args&&... args) {
         return std::shared_ptr<Model>{new Model{std::forward<Args>(args)...}}; // NOLINT(modernize-make-shared)
@@ -42,6 +60,7 @@ public:
     Eigen::Vector4f wireframeColor{0, 0, 0, 0};
     int meshIndex = 0;
     int mode = 0;
+
 
     inline std::shared_ptr<Mesh> GetMesh(int index = 0) const { return meshList[index]; }
     inline std::vector<std::shared_ptr<Mesh>> GetMeshList() const { return meshList; }

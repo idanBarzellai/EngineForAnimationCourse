@@ -2,9 +2,13 @@
 #include "AutoMorphingModel.h"
 #include "Scene.h"
 
+
+
 #include <memory>
 #include <utility>
+#include <igl/AABB.h>
 
+#include <stack>
 class BasicScene : public cg3d::Scene
 {
 public:
@@ -19,9 +23,24 @@ public:
     Eigen::Vector3f CalcTipPOs();
     IGL_INLINE Eigen::Matrix3f CalcParentsInverseRotation(int index);
     void fixAxis();
+    bool boxes_collide(Eigen::AlignedBox<double, 3>& firstbox, Eigen::AlignedBox<double, 3>& secondbox);
+    bool treeNodesCollide(igl::AABB<Eigen::MatrixXd, 3>& firstObjNode, igl::AABB<Eigen::MatrixXd, 3>& secondObjNode);
+    IGL_INLINE void drawAlignedBox(std::shared_ptr<cg3d::Model> cube, Eigen::AlignedBox<double, 3>& alignedBox);
+    bool check_collision();
+
 private:
+    double scaleFactor;
     std::shared_ptr<Movable> root;
-    std::shared_ptr<cg3d::Model> sphere1, cube;
+    std::shared_ptr<cg3d::Model> sphere1, cube, cube2, cubeBox, cubeBox2;
+    std::shared_ptr<cg3d::Material> mat;
+    //std::unordered_map<std::string, std::vector<std::shared_ptr<DataStructure>>> dataStructures;
+    std::map<std::string, std::stack<std::vector<std::shared_ptr<cg3d::Mesh>>>> originalMeshes;
+
+    void createDataStructures(std::shared_ptr<cg3d::Model> model);
+    void simplify();
+    void resetMesh();
+    void Animate();
+
     std::shared_ptr<cg3d::AutoMorphingModel> autoCube;
     std::vector<std::shared_ptr<cg3d::Model>>models, cyls, axis;
     int pickedIndex = 0;
@@ -31,7 +50,6 @@ private:
     Eigen::VectorXi EQ;
     Eigen::MatrixXd V, C, N, T, points, edges, colors;
     bool isActive;
-    void Animate();
     int cylCount;
     float dist;
     float delta;
