@@ -50,29 +50,29 @@ void DrawVisitor::Init()
 
 void DrawVisitor::Visit(Model* model)
 {
-    Eigen::MatrixX3f system = model->GetRotation().trnspose();
+    //Eigen::MatrixX3f system = model->GetRotation().trnspose();
 
-    Visitor::Visit(model); // draw children first
-    if (scene->IsAnimate()) {
-        Eigen::Matrix4f modelTransform = model->isStatic ? model->GetAggregatedTransform() : norm * model->GetAggregatedTransform();
-        const Program* program = model->material->BindProgram();
-        scene->Update(*program, proj, view, modelTransform);
-        // glEnable(GL_LINE_SMOOTH);
-        glLineWidth(model->lineWidth);
+    //Visitor::Visit(model); // draw children first
+    //if (scene->IsAnimate()) {
+    //    Eigen::Matrix4f modelTransform = model->isStatic ? model->GetAggregatedTransform() : norm * model->GetAggregatedTransform();
+    //    const Program* program = model->material->BindProgram();
+    //    scene->Update(*program, proj, view, modelTransform);
+    //    // glEnable(GL_LINE_SMOOTH);
+    //    glLineWidth(model->lineWidth);
 
-        // enable writing to the stencil only when we draw the picked model (and we want to draw an outline)
-        glStencilMask(drawOutline && scene->pickedModel && model == scene->pickedModel.get() ? 0xFF : 0x0);
+    //    // enable writing to the stencil only when we draw the picked model (and we want to draw an outline)
+    //    glStencilMask(drawOutline && scene->pickedModel && model == scene->pickedModel.get() ? 0xFF : 0x0);
 
-        model->material->BindProgram(); // call BindProgram() again to rebind the textures because igl bind_mesh messes them up
-        model->UpdateDataAndDrawMeshes(*program, model->showFaces, model->showTextures);
+    //    model->material->BindProgram(); // call BindProgram() again to rebind the textures because igl bind_mesh messes them up
+    //    model->UpdateDataAndDrawMeshes(*program, model->showFaces, model->showTextures);
 
-        if (model->showWireframe) {
-            program = model->material->BindFixedColorProgram();
-            scene->Update(*program, proj, view, modelTransform);
-            program->SetUniform4fv("fixedColor", 1, &model->wireframeColor);
-            model->UpdateDataAndDrawMeshes(*program, false, false);
-        }
-    }
+    //    if (model->showWireframe) {
+    //        program = model->material->BindFixedColorProgram();
+    //        scene->Update(*program, proj, view, modelTransform);
+    //        program->SetUniform4fv("fixedColor", 1, &model->wireframeColor);
+    //        model->UpdateDataAndDrawMeshes(*program, false, false);
+    //    }
+    //}
 }
 
 void DrawVisitor::DrawOutline()

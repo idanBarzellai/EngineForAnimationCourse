@@ -35,12 +35,32 @@ public:
 private:
 
 
+    typedef
+        std::vector<Eigen::Quaterniond, Eigen::aligned_allocator<Eigen::Quaterniond> >
+        RotationList;
 
+    // W - weights matrix
+    // BE - Edges between joints
+    // C - joints positions
+    // P - parents
+    // M - weights per vertex per joint matrix
+    // U - new vertices position after skinning
+ /*   Eigen::MatrixXd V, W, C, U, M;
+    Eigen::MatrixXi F, BE;
+    Eigen::VectorXi P;*/
+    //std::vector<RotationList > poses; // rotations of joints for animation
+    std::vector<Eigen::Vector3d> calc_vT();
+    RotationList vQ;
+    std::vector<Eigen::Vector3d> vT;
+    Eigen::MatrixXd V, W, U;
+
+    std::vector< Eigen::MatrixXd> weightsVec;
     float scaleFactor;
     std::shared_ptr<Movable> root;
     std::shared_ptr<cg3d::Material> mat;
     std::shared_ptr<cg3d::Material> mat2;
 
+    std::shared_ptr<cg3d::Model> snake;
     std::shared_ptr<cg3d::Mesh> meshCube;
     void Animate();
     void MoveTarget(bool changesides);
@@ -49,6 +69,11 @@ private:
     void resetSnake();
     void PlayAudio(char* audio);
     void AddOrLosePoint(bool isAdd);
+    void Skinning();
+    void LinearSkinning();
+    void UpdateMesh(Eigen::MatrixXd U);
+    Eigen::MatrixXd weigths_calc(int bonesNum);
+    RotationList calc_Vq();
     std::vector<std::shared_ptr<cg3d::Camera>> camList{ 4 };
     std::map<std::shared_ptr<cg3d::Model>, igl::AABB<Eigen::MatrixXd, 3>> kd_trreModelsMap;
 
@@ -69,7 +94,6 @@ private:
     float gameOverTime = 30;
     float lastGameOverTime = 0;
 
-
     int score =0;
     int level = 0;
     int goalScore = 3;
@@ -86,5 +110,6 @@ private:
 
     float changeSIdesTime = 0;
     std::vector<Eigen::Vector3f> targetMovementPos;
+    std::vector<int> randomPlacesX;
     std::vector <bool> targetSides;
 };

@@ -56,6 +56,43 @@
 
 
 using namespace cg3d;
+
+
+//BOOL PlayResource(LPSTR lpName)
+//{
+//    BOOL bRtn;
+//    LPSTR lpRes;
+//    HANDLE hResInfo, hRes;
+//
+//    // Find the WAVE resource. 
+//
+//    hResInfo = FindResource(NULL, lpName, "WAVE");
+//    if (hResInfo == NULL)
+//        return FALSE;
+//
+//    // Load the WAVE resource. 
+//
+//    hRes = LoadResource(NULL, (HRSRC) hResInfo);
+//    if (hRes == NULL)
+//        return FALSE;
+//
+//    // Lock the WAVE resource and play it. 
+//
+//    lpRes = LockResource(hRes);
+//    if (lpRes != NULL) {
+//        bRtn = sndPlaySound(lpRes, SND_MEMORY | SND_SYNC |
+//            SND_NODEFAULT);
+//        UnlockResource(hRes);
+//    }
+//    else
+//        bRtn = 0;
+//
+//    // Free the WAVE resource and return success or failure. 
+//
+//    FreeResource(hRes);
+//    return bRtn;
+//}
+
 void BasicScene::BuildImGui()
 {
     int flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
@@ -67,7 +104,7 @@ void BasicScene::BuildImGui()
 
         ImGui::Text("Level: %d", level);
         ImGui::Text("Score: %d", score);
-        ImGui::Text("Score: %.2f", timer);
+        ImGui::Text("Timer: %.2f", timer);
 
     ImGui::End();
 }
@@ -100,7 +137,7 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
     mat = std::make_shared<Material>("material", program); // empty material
     mat2 = std::make_shared<Material>("material2", program1); // empty material
 
-    auto material1{ std::make_shared<Material>("material", program1) }; // empty material
+    //auto material1{ std::make_shared<Material>("material", program1) }; // empty material
     auto grass{ std::make_shared<Material>("grass", program1) };
     auto carbon{ std::make_shared<Material>("carbon", program1) };
 
@@ -137,7 +174,7 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
     targetMovementPos.push_back({ 0,1,0 });
     targetMovementPos.push_back({ 0,-1,0 });
     
-    std::vector<int> randomPlacesX = { -5, 6, -10, 11, 2, -8, -3, -10, 7 };
+    randomPlacesX = { -5, 6, -10, 11, 2, -8, -3, -10, 7 };
     std::vector<int> randomPlacesY = { -3, -5, 12, 3, 12, -10, 11,8, -7 };
 
 
@@ -147,6 +184,18 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
     models[0]->Translate(Eigen::Vector3f(0, 0, -levelProperties/2));
     models[0]->isPickable = false;
 
+   /* snake = Model::Create("snake", snakeMesh, mat2);
+    models.push_back(snake);
+    root->AddChild(snake);
+    snake->isPickable = false;
+    snake->showWireframe = true;    
+    snake->Rotate(90, Axis::Y);
+    snake->SetCenter(Eigen::Vector3f( - 0.8 * scaleFactor, 0, 0 ));*/
+
+    //for (int i = 0; i < snake->GetMesh()->data[0].vertices.rows(); i++)
+    //{
+    //    
+    //}
 
     for (int i = 0; i < cylCount; i++)
     {
@@ -174,9 +223,6 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
         targets[i]->isHidden = true;
         targets[i]->isPickable = false;
         targetSides.push_back(false);
-        
-
-
     }
     system("CLS");
     std::string answer;
@@ -185,7 +231,15 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
     if (!answer.compare("Y") || !answer.compare("y")) {
         std::cout << "Lets go!: " << std::endl;
         if (soundOn)
-            PlaySound(TEXT("C:/Users/IdanBarzellai/Desktop/animation course/EngineForAnimationCourse/tutorial/sounds/game.wav"), NULL, SND_ASYNC);
+        {
+            /*PlaySound(
+                MAKEINTRESOURCE(104),
+                GetModuleHandle(NULL),
+                SND_RESOURCE);*/
+            PlaySound("C:\\Users\\IdanBarzellai\\Desktop\\animation course\\newbuildwithsounds\\Debug\\game.wav", NULL,SND_LOOP | SND_ASYNC);// , NULL, SND_MEMORY | SND_ASYNC);
+            //while (true) {}
+        }
+        
     }
     else {
         std::cout << "OK bye... \nQuitting" << std::endl;
@@ -194,8 +248,27 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
 
     cyls[0]->AddChild(camList[0]);
 
-    camList[0]->Translate({0.5,0.5,0 });
+    //camList[0]->Translate({ 0,0,4 });
 
+    camList[0]->Translate({4,0,4 });
+
+    //camList[0]->Rotate(-90, Axis::X);
+
+    //camList[0]->Rotate(90, Axis::XY);
+
+    camList[0]->Rotate(45, Axis::Y);
+    //camList[0]->RotateInSystem(camera->GetRotation().transpose(), 200, Axis::Z);
+    //V = snake->GetMesh()->data[0].vertices;
+    //for (int i = 1; i < cylCount; i++)
+    //    weightsVec.push_back( weigths_calc(i));
+
+    //W = weightsVec[3]; // base snake - 4 cyls
+
+
+
+
+
+    //cyls[0]->AddChild(snake);
 
 }
 
@@ -217,12 +290,14 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
 
     if (timer - lastTimeGenerated > generatingTime) {
         if (soundOn)
-            PlaySound(TEXT("C:/Users/IdanBarzellai/Desktop/animation course/EngineForAnimationCourse/tutorial/sounds/addingball.wav"), NULL, SND_ASYNC);
+            PlaySound(TEXT("C:\\Users\\IdanBarzellai\\Desktop\\animation course\\newbuildwithsounds\\Debug\\addingball.wav"), NULL,  SND_ASYNC);
         igl::AABB<Eigen::MatrixXd, 3> kd_tree; kd_tree.init(targets[currAmountOfObjs]->GetMesh()->data[0].vertices, targets[currAmountOfObjs]->GetMesh()->data[0].faces);
        //kd_trees.push_back(kd_tree);
         kd_trreModelsMap.emplace(targets[currAmountOfObjs], kd_tree);
         targets[currAmountOfObjs]->isHidden = false;
         currAmountOfObjs++;
+        currAmountOfObjs = currAmountOfObjs % targets.size();
+
         lastTimeGenerated = timer;
     }
 
@@ -236,7 +311,7 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
     if (timer  - lastGameOverTime > gameOverTime) {
         
         if(soundOn)
-            PlaySound(TEXT("C:/Users/IdanBarzellai/Desktop/animation course/EngineForAnimationCourse/tutorial/sounds/end_notice.wav"), NULL, SND_ASYNC);
+            PlaySound(TEXT("C:\\Users\\IdanBarzellai\\Desktop\\animation course\\newbuildwithsounds\\Debug\\end_notice.wav"), NULL, SND_ASYNC);
         system("CLS");
 
         std::string answer;
@@ -264,7 +339,7 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
     {
         Eigen::Vector3f dist = targets[i]->GetTranslation() - cyls[0]->GetTranslation();
         if (sqrt((dist[0] * dist[0]) + (dist[1] * dist[1]) + (dist[2] * dist[2])) < 2) {
-            check_collision()
+            check_collision();
         }
     }
 
@@ -276,7 +351,7 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
 
         if (outOfBounderied || score < -2) {
             if (soundOn)
-                PlaySound(TEXT("C:/Users/IdanBarzellai/Desktop/animation course/EngineForAnimationCourse/tutorial/sounds/LostGame.wav"), NULL, SND_ASYNC);
+                PlaySound(TEXT("C:\\Users\\IdanBarzellai\\Desktop\\animation course\\newbuildwithsounds\\Debug\\LostGame.wav"), NULL, SND_ASYNC);
             system("CLS");
 
             std::string answer;
@@ -286,6 +361,37 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
             exit(0);
         }
     }
+}
+
+Eigen::MatrixXd BasicScene::weigths_calc(int bonesNum) {
+    int vertexNum = V.rows();
+    W.resize(vertexNum, bonesNum);
+
+    double z, w1, w2, lBound, uBound;
+    for (int i = 0; i < vertexNum; ++i) {
+        z = V.row(i).z() * bonesNum /1.6f;
+        lBound = floor(z);
+        uBound = ceil(z);
+
+        w1 = abs(z - uBound);
+        w2 = 1 - w1;
+
+        Eigen::VectorXd Wi;
+        Wi.resize(bonesNum);
+
+        for (int j = 0; j < Wi.size(); ++j)
+        {
+            j == lBound ? Wi[lBound] = w1 :
+                j == uBound ? Wi[uBound] = w2 :
+                Wi[j] = 0;
+        }
+        W.row(i) = Wi;
+    }
+    return W;
+    /*for (int i = 0; i < V.size(); i++)
+    {
+        double z = V.row(i)[2] * cylCount /1.6f;
+    }*/
 }
 
 void BasicScene::MouseCallback(Viewport* viewport, int x, int y, int button, int action, int mods, int buttonState[])
@@ -371,10 +477,11 @@ void BasicScene::MoveTarget(bool changesides) {
         vecDest2 = targetMovementPos[((i * 2) + 1) % 4];
 
         if(changesides)
-            targets[i]->TranslateInSystem(root->GetRotation().transpose(), vecDest2 * speed / 2);
+            targets[i]->TranslateInSystem(root->GetRotation().transpose(), randomPlacesX[i % 9] * vecDest2 * speed / 10);
         else
-            targets[i]->TranslateInSystem(root->GetRotation().transpose(), vecDest * speed / 2);
+            targets[i]->TranslateInSystem(root->GetRotation().transpose(), randomPlacesX[i % 9] * vecDest * speed / 10);
     }
+   
     
 }
 void BasicScene::Animate()
@@ -389,6 +496,85 @@ void BasicScene::Animate()
         quat = quat.slerp(0.99, Eigen::Quaternionf::Identity());
         cyls[i]->Rotate(Eigen::Matrix3f(quat));
     }
+}
+void BasicScene::Skinning() {
+    // Propagate relative rotations via FK to retrieve absolute transformations
+    // vQ - rotations of joints
+    // vT - translation of joints
+    // W - weights matrix
+    // BE - Edges between joints
+    // C - joints positions
+    // P - parents
+    // M - weights per vertex per joint matrix
+    // U - new vertices position after skinning
+    V =snake->GetMesh()->data[0].vertices;
+    vT = calc_vT();
+    vQ.resize(cylCount);
+    //igl::dqs(V, W, vQ, vT, U);
+    /*std::vector< cg3d::Mesh> meshes;
+    meshes.push_back(cg3d::Mesh("new", snake->GetMesh()->data[0].vertices, snake->GetMesh()->data[0].vertices, snake->GetMesh()->data[0].vertices, snake->GetMesh()->data[0].vertices));
+    std::shared_ptr < cg3d::Mesh> mesh;
+    
+    snake->GetMeshList().front() = std::shared_ptr < cg3d::Mesh>({ "new", snake->GetMesh()->data[0].vertices, snake->GetMesh()->data[0].vertices, snake->GetMesh()->data[0].vertices, snake->GetMesh()->data[0].vertices }) ;
+    snake->SetMeshList(meshes);*/
+    snake->GetTranslation();
+}
+void BasicScene::LinearSkinning() {
+    /*const int dim = 4 + score;
+    Eigen::MatrixXd T(BE.rows() * (dim + 1), dim);
+    for (int e = 0; e < BE.rows(); e++)
+    {
+        Affine3d a = Affine3d::Identity();
+        a.translate(vT[e]);
+        a.rotate(vQ[e]);
+        T.block(e * (dim + 1), 0, dim + 1, dim) =
+            a.matrix().transpose().block(0, 0, dim + 1, dim);
+    }*/
+}
+
+void BasicScene::UpdateMesh(Eigen::MatrixXd U) {
+
+    std::vector<cg3d::MeshData> newMeshDataList;
+    newMeshDataList.push_back({ U, snake->GetMesh()->data[0].faces, snake->GetMesh()->data[0].vertexNormals, snake->GetMesh()->data[0].textureCoords });
+
+    std::vector<std::shared_ptr<cg3d::Mesh>> meshVec;
+    meshVec.push_back(std::make_shared<cg3d::Mesh>("new mesh", newMeshDataList));
+    snake->SetMeshList( meshVec);
+}
+
+BasicScene::RotationList BasicScene::calc_Vq() {
+
+    Eigen::Vector3f vec1 = Eigen::Vector3f(1, 0, 0);
+    Eigen::Vector3f vec2;
+
+    Eigen::Matrix3f sumMatrix = Eigen::Matrix3f().Identity();
+
+    for (int i = 0; i < cylCount; i++)
+    {
+        sumMatrix *= cyls[i]->Tout.rotation();
+        vec2 = sumMatrix * Eigen::Vector3f(1, 0, 0);
+        //vQ.push_back(Eigen::Quaternionf::FromTwoVectors(vec2, vec1));
+    }
+
+
+    return vQ;
+}
+
+
+std::vector<Eigen::Vector3d> BasicScene::calc_vT() {
+
+    vT[0] = Eigen::Vector3d(0,0,0);
+    Eigen::Vector3d sumV = vT[0];
+    Eigen::Vector3f vec;
+    for (int i = 0; i < cylCount; i++)
+    {
+        vec = cyls[i]->GetTranslation();
+        sumV += Eigen::Vector3d(vec[0], vec[1], vec[2]);
+        vT[i] = sumV;
+
+    }
+
+    return vT;
 }
 
 void BasicScene::SetLevel(int level) {
@@ -437,12 +623,15 @@ void BasicScene::KeyCallback(Viewport* viewport, int x, int y, int key, int scan
             for (int i = 2; i < (4+score); i++)
                 cyls[i]->RotateInSystem(system, -speed / radius, Axis::Z);
             break;
+            //Skinning();
+
         case GLFW_KEY_DOWN:
 
             cyls[0]->RotateInSystem(system, -speed / radius, Axis::Z);
             cyls[1]->RotateInSystem(system, speed / radius, Axis::Z);
             for (int i = 2; i < (4 + score); i++)
                 cyls[i]->RotateInSystem(system, speed / radius, Axis::Z);
+            //Skinning();
             break;
         case GLFW_KEY_LEFT:
             /*cyls[0]->RotateInSystem(system, speed / radius, Axis::Y);
@@ -500,12 +689,12 @@ IGL_INLINE bool BasicScene::check_collision() {
 
 void BasicScene::AddOrLosePoint(bool isAdd) {
     score = isAdd ? score + 1 : score - 1;
-    cyls[3 + score]->isHidden = isAdd ? false : true;
-    system("CLS");
+    cyls[isAdd ? 3 + score : 4 + score]->isHidden = isAdd ? false : true;
+    //system("CLS");
     if (soundOn &&isAdd)
-        PlaySound(TEXT("C:/Users/IdanBarzellai/Desktop/animation course/EngineForAnimationCourse/tutorial/sounds/point.wav"), NULL, SND_ASYNC);
+        PlaySound(TEXT("C:\\Users\\IdanBarzellai\\Desktop\\animation course\\newbuildwithsounds\\Debug\\point.wav"), NULL,  SND_ASYNC);
     else if(soundOn && !isAdd)
-        PlaySound(TEXT("C:/Users/IdanBarzellai/Desktop/animation course/EngineForAnimationCourse/tutorial/sounds/lose.wav"), NULL, SND_ASYNC);
+        PlaySound(TEXT("C:\\Users\\IdanBarzellai\\Desktop\\animation course\\newbuildwithsounds\\Debug\\losePoint.wav"), NULL,  SND_ASYNC);
 
     std::string output = isAdd ? "+ 1 !!!!" : "- 1 ...";
     std::cout << output << std::endl;
