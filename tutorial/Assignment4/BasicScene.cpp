@@ -104,7 +104,7 @@ void BasicScene::BuildImGui()
 
         ImGui::Text("Level: %d", level);
         ImGui::Text("Score: %d", score);
-        ImGui::Text("Timer: %.2f", timer);
+        ImGui::Text("Timer: %.2f", timer *10);
 
     ImGui::End();
 }
@@ -154,6 +154,8 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
     auto snakeMesh{ IglLoader::MeshFromFiles("snake_mesh", "data/snake1.obj") };
     auto snakeMesh2{ IglLoader::MeshFromFiles("snake_mesh", "data/snake2.obj") };
     
+    if (soundOn)
+        PlaySound("C:\\Users\\IdanBarzellai\\Desktop\\animation course\\newbuildwithsounds\\Debug\\game.wav", NULL, SND_LOOP | SND_ASYNC);// , NULL, SND_MEMORY | SND_ASYNC);
 
     camera->Translate(levelProperties, Axis::Z);
     
@@ -230,15 +232,7 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
     std::cin >> answer; // get user input from the keyboard
     if (!answer.compare("Y") || !answer.compare("y")) {
         std::cout << "Lets go!: " << std::endl;
-        if (soundOn)
-        {
-            /*PlaySound(
-                MAKEINTRESOURCE(104),
-                GetModuleHandle(NULL),
-                SND_RESOURCE);*/
-            PlaySound("C:\\Users\\IdanBarzellai\\Desktop\\animation course\\newbuildwithsounds\\Debug\\game.wav", NULL,SND_LOOP | SND_ASYNC);// , NULL, SND_MEMORY | SND_ASYNC);
-            //while (true) {}
-        }
+       
         
     }
     else {
@@ -251,6 +245,8 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
     //camList[0]->Translate({ 0,0,4 });
 
     camList[0]->Translate({4,0,4 });
+
+    camList[0]->Rotate(90, Axis::X);
 
     //camList[0]->Rotate(-90, Axis::X);
 
@@ -308,7 +304,7 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
     MoveTarget(changeSidesNow);
     
     // Checking if time is up
-    if (timer  - lastGameOverTime > gameOverTime) {
+    if ((timer * 10) - lastGameOverTime > gameOverTime) {
         
         if(soundOn)
             PlaySound(TEXT("C:\\Users\\IdanBarzellai\\Desktop\\animation course\\newbuildwithsounds\\Debug\\end_notice.wav"), NULL, SND_ASYNC);
@@ -330,7 +326,7 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
 
     
     // Checking for end game
-    if (score == goalScore) {
+    if (score == 1) {
         SetLevel(++level);
     }
     

@@ -88,7 +88,7 @@ private:
     float max_dis;
 
     float timer = 0;
-    float generatingTime = 0.5f;
+    float generatingTime = 0.3f;
     float lastTimeGenerated = 0;
 
     float gameOverTime = 30;
@@ -97,7 +97,7 @@ private:
     int score =0;
     int level = 0;
     int goalScore = 3;
-    bool soundOn = true;
+    bool soundOn = false;
     int currAmountOfObjs = 0;
     int totalObjAmount = 10;
     bool changeSidesNow = false;
